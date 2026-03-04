@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Interactive Todo List</title>
+  <style>
+    body {
+  font-family: Segoe UI;
+  background: linear-gradient(135deg,#667eea,#764ba2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  width: 500px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #667eea;
+  color: white;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f4f6ff;
+  transition: 0.3s;
+}
+
+.completed {
+  text-decoration: line-through;
+  color: gray;
+  background: #e0e0e0;
+}
+
+.smallBtn {
+  margin-left: 5px;
+  background: #ddd;
+  color: black;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🚀 My Todo List</h1>
+
+    <!-- Add / Update -->
+    <div class="controls">
+  <input id="taskInput" placeholder="Enter new task" style="flex:1;" />
+  <input type="date" id="dueDateInput" />
+  <button id="addBtn">Add</button>
+</div>
+
+    <!-- Search / Sort -->
+    <div class="controls">
+      <input id="searchInput" placeholder="Search tasks" style="flex:1;" />
+      <button id="searchBtn">🔍</button>
+      <button id="sortBtn">Sort by Due</button>
+    </div>
+
+    <!-- Todo List -->
+    <ul id="todoList"></ul>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button id="prevBtn">⬅️ Prev</button>
+      <span id="pageInfo">Page 1</span>
+      <button id="nextBtn">Next ➡️</button>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:8080/todos";
+
+    let todos = [];
+    let editId = null;
+    let page = 0;
+    let size = 5;
+    let totalPages = 1;
+
+    const ul = document.getElementById("todoList");
+    const input = document.getElementById("taskInput");
+    const addBtn = document.getElementById("addBtn");
+    const searchInput = document.getElementById("searchInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const sortBtn = document.getElementById("sortBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const pageInfo = document.getElementById("pageInfo");
+    const dueDateInput = document.getElementById("dueDateInput");
+
+    // Fetch todos with pagination
+    function fetchTodos() {
+      fetch(`${API_URL}/page?page=${page}&size=${size}`)
+        .then(res => res.json())
+        .then(data => {
+          todos = data.content || data;
+          totalPages = data.totalPages || 1;
+          renderTodos();
+          updatePaginationInfo();
+        })
+        .catch(err => console.error(err));
+    }
+
+    // Search todos
+    function searchTodos() {
+      const keyword = searchInput.value.trim();
+      if (!keyword) return fetchTodos();
+      fetch(`${API_URL}/search?keyword=${keyword}`)
+        .then(res => res.json())
+        .then(data => {
+          todos = data;
+          renderTodos();
+          pageInfo.textContent = "Search Results";
+        })
+        .catch(err => console.error(err));
+    }
+
+    // Sort todos by due date
+    function sortTodos() {
+      fetch(`${API_URL}/sorted`)
+        .then(res => res.json())
+        .then(data => {
+          todos = data;
+          renderTodos();
+          pageInfo.textContent = "Sorted by Due Date";
+        })
+        .catch(err => console.error(err));
+    }
+
+    // Render todos
+    function renderTodos() {
+      ul.innerHTML = "";
+      todos.forEach(todo => {
+        const li = document.createElement("li");
+
+        const span = document.createElement("span");
+        span.textContent = todo.title + (todo.dueDate ? ` (${todo.dueDate})` : "");
+        if (todo.completed) span.classList.add("completed");
+        span.onclick = () => toggleComplete(todo);
+        li.appendChild(span);
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "✏️";
+        editBtn.className = "smallBtn";
+        editBtn.onclick = () => editTask(todo);
+        li.appendChild(editBtn);
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "❌";
+        delBtn.className = "smallBtn";
+        delBtn.onclick = () => deleteTask(todo.id);
+        li.appendChild(delBtn);
+
+        ul.appendChild(li);
+      });
+    }
+
+    function addTask() {
+  const title = input.value.trim();
+  if (!title) return;
+
+  fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ 
+      title, 
+      completed: false,
+      dueDate: dueDateInput.value || null
+    })
+  })
+  .then(res => res.json())
+  .then(() => {
+    input.value = "";
+    dueDateInput.value = "";
+    fetchTodos();
+  })
+  .catch(err => console.error(err));
+}
+    
+
+    function toggleComplete(todo) {
+      fetch(`${API_URL}/${todo.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: todo.title, completed: !todo.completed })
+      })
+      .then(res => res.json())
+      .then(fetchTodos)
+      .catch(err => console.error(err));
+    }
+
+    function deleteTask(id) {
+      fetch(`${API_URL}/${id}`, { method: "DELETE" })
+        .then(fetchTodos)
+        .catch(err => console.error(err));
+    }
+
+    function editTask(todo) {
+      input.value = todo.title;
+      editId = todo.id;
+    }
+
+    function nextPage() {
+      if (page + 1 < totalPages) {
+        page++;
+        fetchTodos();
+      }
+    }
+
+    function prevPage() {
+      if (page > 0) {
+        page--;
+        fetchTodos();
+      }
+    }
+
+    function updatePaginationInfo() {
+      pageInfo.textContent = `Page ${page + 1} of ${totalPages}`;
+    }
+
+    // Event listeners
+    addBtn.onclick = addTask;
+    searchBtn.onclick = searchTodos;
+    sortBtn.onclick = sortTodos;
+    prevBtn.onclick = prevPage;
+    nextBtn.onclick = nextPage;
+    input.addEventListener("keypress", e => { if (e.key === "Enter") addTask(); });
+
+    // Initial load
+    fetchTodos();
+  </script>
+</body>
+</html>
