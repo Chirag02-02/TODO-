@@ -1,0 +1,45 @@
+.header {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.app-title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #F0EDE8;
+  letter-spacing: -0.5px;
+}
+
+.app-title span {
+  color: #D4AF37;
+  text-shadow: 0 0 20px rgba(212,175,55,0.4);
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #3A3228, transparent);
+  margin: 16px 0 0;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.stat-pill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 99px;
+  background: rgba(212,175,55,0.1);
+  color: #D4AF37;
+  border: 1px solid rgba(212,175,55,0.2);
+}
+
+.stat-pill.done {
+  background: rgba(134,176,120,0.1);
+  color: #86B078;
+  border: 1px solid rgba(134,176,120,0.2);
+}

@@ -1,0 +1,102 @@
+.list-header {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #3A3A3A;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.list-count {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: none;
+  color: #555555;
+}
+
+.todo-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Pagination container */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #2E2E2E;
+}
+
+/* Prev / Next buttons */
+.page-btn {
+  padding: 7px 14px;
+  background: transparent;
+  border: 1px solid #333333;
+  border-radius: 8px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666666;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: #D4AF37;
+  color: #D4AF37;
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.page-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* Page number buttons container */
+.page-numbers {
+  display: flex;
+  gap: 4px;
+}
+
+/* Individual page number button */
+.page-num {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid #333333;
+  border-radius: 8px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555555;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.page-num:hover {
+  border-color: #D4AF37;
+  color: #D4AF37;
+  background: rgba(212, 175, 55, 0.08);
+}
+
+/* Active page number */
+.page-num.active {
+  background: #D4AF37;
+  border-color: #D4AF37;
+  color: #1A1A1A;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+  cursor: default;
+}
